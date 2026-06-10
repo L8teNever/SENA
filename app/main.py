@@ -71,9 +71,9 @@ async def index(request: Request):
     credentials_configured = client_config is not None
     
     return templates.TemplateResponse(
-        "index.html",
-        {
-            "request": request,
+        request=request,
+        name="index.html",
+        context={
             "user_email": user_email,
             "credentials_configured": credentials_configured,
             "google_client_id": os.environ.get("GOOGLE_CLIENT_ID") or db.get_setting("google_client_id") or ""
@@ -139,9 +139,9 @@ async def oauth_login(request: Request):
     auth_url, state = oauth.get_auth_url(redirect_uri)
     if not auth_url:
         return templates.TemplateResponse(
-            "index.html",
-            {
-                "request": request,
+            request=request,
+            name="index.html",
+            context={
                 "error_message": "Google-API-Client-Zugangsdaten sind nicht eingerichtet.",
                 "credentials_configured": False
             }
@@ -184,9 +184,9 @@ async def oauth_callback(request: Request, response: Response):
         return response
     except Exception as e:
         return templates.TemplateResponse(
-            "index.html",
-            {
-                "request": request,
+            request=request,
+            name="index.html",
+            context={
                 "error_message": f"OAuth-Fehler: {str(e)}",
                 "credentials_configured": True
             }
