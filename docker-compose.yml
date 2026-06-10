@@ -1,11 +1,7 @@
-version: '3.8'
-
 services:
   sena:
     # Zieht das Docker-Image automatisch aus der GitHub Container Registry (GHCR).
-    # ERSETZE '<github-username>' und '<repo-name>' mit deinem echten GitHub-Pfad!
-    # Beispiel: ghcr.io/dein-nutzername/sena:latest
-    image: ghcr.io/<github-username>/<repo-name>:latest
+    image: ghcr.io/l8tenever/sena:latest
     container_name: sena
     restart: unless-stopped
     ports:
