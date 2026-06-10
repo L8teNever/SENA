@@ -1,0 +1,26 @@
+# Python files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.venv/
+venv/
+ENV/
+env/
+
+# App Data & Database (SQLite)
+data/
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+
+# Configuration and Secrets
+.env
+credentials.json
+token.json
+
+# IDEs
+.vscode/
+.idea/

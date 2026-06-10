@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SENA — Gmail Automatisierung</title>
+    <!-- Google Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="dark-mode">
+    <div class="background-glow"></div>
+    
+    <header class="app-bar">
+        <div class="app-bar-container">
+            <div class="brand">
+                <span class="material-symbols-outlined logo-icon">insights</span>
+                <h1>SENA</h1>
+                <span class="version-tag">Android 16 Dev</span>
+            </div>
+            
+            <div class="user-profile-menu">
+                {% if user_email %}
+                <div class="profile-chip">
+                    <span class="material-symbols-outlined">account_circle</span>
+                    <span class="profile-email">{{ user_email }}</span>
+                    <form action="/api/logout" method="post" class="logout-form">
+                        <button type="submit" class="icon-button-small" title="Abmelden">
+                            <span class="material-symbols-outlined">logout</span>
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        {% if not credentials_configured %}
+        <!-- Setup Wizard (Credentials configuration) -->
+        <section class="setup-wizard-card glass-card fade-in">
+            <div class="card-header">
+                <span class="material-symbols-outlined header-icon accent-icon">settings_suggest</span>
+                <h2>Google API Einrichtung</h2>
+            </div>
+            <p class="description">
+                Um SENA mit deinem Google-Konto zu verbinden, musst du in der Google Cloud Console ein Projekt erstellen, die Gmail API aktivieren und OAuth-Zugangsdaten für eine Webanwendung konfigurieren.
+            </p>
+            <form action="/api/settings/setup" method="post" class="setup-form">
+                <div class="input-group">
+                    <label for="client_id">Google Client ID</label>
+                    <input type="text" id="client_id" name="client_id" placeholder="123456789-abc.apps.googleusercontent.com" required value="{{ google_client_id }}">
+                </div>
+                <div class="input-group">
+                    <label for="client_secret">Google Client Secret</label>
+                    <input type="password" id="client_secret" name="client_secret" placeholder="••••••••••••••••••••" required>
+                </div>
+                <div class="input-group">
+                    <label for="redirect_uri">Redirect URI (Callback)</label>
+                    <input type="text" id="redirect_uri" name="redirect_uri" value="http://localhost:8000/oauth2callback" readonly class="readonly-input">
+                    <span class="input-tip">Diese URI muss exakt so in deiner Google Cloud Console eingetragen sein.</span>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">
+                    <span class="material-symbols-outlined">save</span>
+                    Zugangsdaten speichern
+                </button>
+            </form>
+        </section>
+        
+        {% elif not user_email %}
+        <!-- OAuth Login Screen -->
+        <section class="login-card glass-card fade-in">
+            <div class="brand-large">
+                <span class="material-symbols-outlined logo-huge">insights</span>
+                <h2>SENA</h2>
+                <p>E-Mail-Automatisierung für Gmail</p>
+            </div>
+            
+            {% if error_message %}
+            <div class="alert alert-error">
+                <span class="material-symbols-outlined">error</span>
+                <p>{{ error_message }}</p>
+            </div>
+            {% endif %}
+            
+            <p class="login-desc">
+                Verbinde SENA mit deinem Gmail-Konto, um automatische Regeln und Aufräum-Skripte im Hintergrund ausführen zu lassen.
+            </p>
+            
+            <a href="/oauth/login" class="btn btn-google btn-full">
+                <svg class="google-logo" viewBox="0 0 24 24" width="24" height="24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                </svg>
+                Mit Google anmelden
+            </a>
+            
+            <div class="divider">oder</div>
+            
+            <div class="settings-reset-action">
+                <button type="button" id="reconfigure-api-btn" class="btn btn-secondary btn-full">
+                    <span class="material-symbols-outlined">settings</span>
+                    Google-API-Client anpassen
+                </button>
+            </div>
+        </section>
+
+        {% else %}
+        <!-- Dashboard (Logged In) -->
+        <div class="dashboard-grid">
+            
+            <!-- LEFT COLUMN: Status, Settings, Contacts -->
+            <div class="dashboard-sidebar">
+                
+                <!-- Connection Status -->
+                <section class="glass-card status-card">
+                    <div class="status-header">
+                        <span class="pulse-indicator"></span>
+                        <h3>Hintergrund-Dienst</h3>
+                        <span class="status-badge">Aktiv</span>
+                    </div>
+                    <div class="status-actions">
+                        <button id="sync-now-btn" class="btn btn-secondary">
+                            <span class="material-symbols-outlined button-icon-spin" id="sync-icon">sync</span>
+                            Jetzt synchronisieren
+                        </button>
+                    </div>
+                </section>
+                
+                <!-- Verification Clean-up settings -->
+                <section class="glass-card v-cleaner-card">
+                    <div class="card-header">
+                        <span class="material-symbols-outlined header-icon accent-icon">security</span>
+                        <h3>Verifizierungs-Aufräumer</h3>
+                    </div>
+                    <p class="section-desc">
+                        Sucht nach Mails wie "Dein Verifizierungscode" oder "Einmal-Passwort" und archiviert diese automatisch nach **24 Stunden** in das Label <span class="badge">SENA/Verifizierungen</span>.
+                    </p>
+                    <div class="switch-row">
+                        <span>Automatische Archivierung aktivieren</span>
+                        <label class="switch-control">
+                            <input type="checkbox" id="v-cleaner-toggle" checked>
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+                </section>
+                
+                <!-- Super Wichtig Contacts -->
+                <section class="glass-card contacts-card">
+                    <div class="card-header">
+                        <span class="material-symbols-outlined header-icon accent-icon">star</span>
+                        <h3>Super Wichtig Kontakte</h3>
+                    </div>
+                    <p class="section-desc">
+                        Empfänger, an die du E-Mails sendest, werden hier automatisch eingetragen. Mails von diesen Kontakten erhalten das Label <span class="badge">Super Wichtig</span>.
+                    </p>
+                    
+                    <form id="add-contact-form" class="inline-form">
+                        <input type="email" id="contact-email-input" placeholder="kontakt@beispiel.de" required>
+                        <button type="submit" class="btn btn-primary icon-only-btn" title="Hinzufügen">
+                            <span class="material-symbols-outlined">add</span>
+                        </button>
+                    </form>
+                    
+                    <div class="contacts-list-container">
+                        <ul id="contacts-list" class="contacts-list">
+                            <!-- Populated by JS -->
+                            <li class="empty-list-item">Keine Kontakte geladen</li>
+                        </ul>
+                    </div>
+                </section>
+            </div>
+
+            <!-- RIGHT COLUMN: Rules Manager & Terminal logs -->
+            <div class="dashboard-main">
+                
+                <!-- Rules Manager -->
+                <section class="glass-card rules-card">
+                    <div class="rules-header">
+                        <div class="card-header">
+                            <span class="material-symbols-outlined header-icon accent-icon">rule</span>
+                            <h3>Eigene Filterregeln</h3>
+                        </div>
+                        <button id="add-rule-btn" class="btn btn-primary">
+                            <span class="material-symbols-outlined">add_circle</span>
+                            Regel erstellen
+                        </button>
+                    </div>
+                    
+                    <div class="rules-grid" id="rules-grid">
+                        <!-- Populated by JS -->
+                        <div class="empty-rules-container">
+                            <span class="material-symbols-outlined empty-icon">rule_folder</span>
+                            <p>Noch keine Filterregeln angelegt. Erstelle eine neue Regel, um E-Mails zu sortieren.</p>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Logs Console -->
+                <section class="glass-card logs-card">
+                    <div class="logs-header">
+                        <div class="card-header">
+                            <span class="material-symbols-outlined header-icon">terminal</span>
+                            <h3>Aktivitäts-Log</h3>
+                        </div>
+                        <div class="logs-actions">
+                            <button id="clear-logs-btn" class="icon-button-small" title="Konsole leeren">
+                                <span class="material-symbols-outlined">delete_sweep</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="terminal-container">
+                        <div class="terminal-logs" id="terminal-logs">
+                            <div class="log-line log-info">Lade Log-Verlauf...</div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+        {% endif %}
+    </main>
+
+    <!-- CREATE RULE DIALOG MODAL -->
+    <dialog id="rule-dialog" class="glass-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Neue Filterregel erstellen</h2>
+                <button id="close-dialog-btn" class="icon-button-small">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <form id="rule-form" class="modal-form">
+                <div class="input-group">
+                    <label for="rule-name">Regelname</label>
+                    <input type="text" id="rule-name" placeholder="z. B. Rechnungen von Händler" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="rule-type">Filtertyp</label>
+                    <select id="rule-type" required>
+                        <option value="from">Absender (Von Email)</option>
+                        <option value="to">Empfänger (An Email)</option>
+                        <option value="from_subject">Absender und Betreff</option>
+                        <option value="subject_keywords">Betreff enthält Stichworte</option>
+                    </select>
+                </div>
+                
+                <!-- Condition inputs (toggled dynamically) -->
+                <div class="input-group condition-field" id="field-sender">
+                    <label for="rule-sender">Absender E-Mail</label>
+                    <input type="text" id="rule-sender" placeholder="z.B. newsletter@firma.de">
+                </div>
+                
+                <div class="input-group condition-field" id="field-recipient" style="display:none;">
+                    <label for="rule-recipient">Empfänger E-Mail (z. B. Alias)</label>
+                    <input type="text" id="rule-recipient" placeholder="z.B. meine-adresse+alias@gmail.com">
+                </div>
+                
+                <div class="input-group condition-field" id="field-subject" style="display:none;">
+                    <label for="rule-subject" id="rule-subject-label">Betreff-Stichwort</label>
+                    <input type="text" id="rule-subject" placeholder="z. B. Rechnung, Beleg">
+                    <span class="input-tip" id="subject-tip">Mehrere Wörter können mit Komma getrennt eingegeben werden.</span>
+                </div>
+                
+                <div class="input-group">
+                    <label for="rule-target-label">Gmail-Label Name</label>
+                    <input type="text" id="rule-target-label" placeholder="z. B. Finanzen" required>
+                    <span class="input-tip">Wird in Gmail automatisch erstellt, wenn es nicht existiert.</span>
+                </div>
+                
+                <div class="checkbox-options">
+                    <label class="checkbox-row">
+                        <input type="checkbox" id="rule-remove-inbox" checked>
+                        <span>Aus Posteingang verschieben (Archivieren)</span>
+                    </label>
+                    <label class="checkbox-row">
+                        <input type="checkbox" id="rule-remove-important" checked>
+                        <span>Aus wichtigem Bereich entfernen</span>
+                    </label>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" id="cancel-dialog-btn" class="btn btn-secondary">Abbrechen</button>
+                    <button type="submit" class="btn btn-primary">
+                        <span class="material-symbols-outlined">save</span>
+                        Speichern
+                    </button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+
+    <!-- RECONFIGURE DIALOG (hidden credentials form) -->
+    <dialog id="credentials-dialog" class="glass-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Google API anpassen</h2>
+                <button id="close-credentials-btn" class="icon-button-small">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form action="/api/settings/setup" method="post" class="modal-form">
+                <div class="input-group">
+                    <label for="reconfig_client_id">Google Client ID</label>
+                    <input type="text" id="reconfig_client_id" name="client_id" required value="{{ google_client_id }}">
+                </div>
+                <div class="input-group">
+                    <label for="reconfig_client_secret">Google Client Secret</label>
+                    <input type="password" id="reconfig_client_secret" name="client_secret" placeholder="Neues Passwort eingeben oder leer lassen, falls unverändert">
+                </div>
+                <div class="input-group">
+                    <label for="reconfig_redirect_uri">Redirect URI</label>
+                    <input type="text" id="reconfig_redirect_uri" name="redirect_uri" value="http://localhost:8000/oauth2callback" readonly class="readonly-input">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="cancel-credentials-btn" class="btn btn-secondary">Abbrechen</button>
+                    <button type="submit" class="btn btn-primary">Speichern</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+
+    <footer class="footer">
+        <p>SENA &copy; 2026. Made with Google Material You.</p>
+    </footer>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

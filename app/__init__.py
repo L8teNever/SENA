@@ -1,0 +1,1 @@
+# SENA app module initialization
