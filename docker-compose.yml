@@ -3,9 +3,10 @@ services:
     # Zieht das Docker-Image automatisch aus der GitHub Container Registry (GHCR).
     image: ghcr.io/l8tenever/sena:latest
     container_name: sena
+    network_mode: "bridge"
     restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "10.7.0.1:1026:8000"
     volumes:
       - ./data:/app/data
     env_file:
