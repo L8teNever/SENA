@@ -119,16 +119,34 @@
                 
                 <!-- Connection Status -->
                 <section class="glass-card status-card">
-                    <div class="status-header">
-                        <span class="pulse-indicator"></span>
-                        <h3>Hintergrund-Dienst</h3>
-                        <span class="status-badge">Aktiv</span>
+                    <div class="status-row" style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
+                        <div class="status-header">
+                            <span class="pulse-indicator"></span>
+                            <h3>Hintergrund-Dienst</h3>
+                            <span class="status-badge">Aktiv</span>
+                        </div>
+                        <div class="status-actions">
+                            <button id="sync-now-btn" class="btn btn-secondary">
+                                <span class="material-symbols-outlined button-icon-spin" id="sync-icon">sync</span>
+                                Jetzt synchronisieren
+                            </button>
+                        </div>
                     </div>
-                    <div class="status-actions">
-                        <button id="sync-now-btn" class="btn btn-secondary">
-                            <span class="material-symbols-outlined button-icon-spin" id="sync-icon">sync</span>
-                            Jetzt synchronisieren
-                        </button>
+                    
+                    <div class="historical-sync-section" style="width: 100%;">
+                        <div class="divider-horizontal"></div>
+                        <h4>Historischer Sync</h4>
+                        <p class="section-desc-small">Wende deine Filterregeln nachträglich auf ältere E-Mails an.</p>
+                        <div class="inline-form-vertical">
+                            <div class="input-group-small">
+                                <label for="historical-date">Mails ab Datum:</label>
+                                <input type="date" id="historical-date" class="date-input">
+                            </div>
+                            <button id="historical-sync-btn" class="btn btn-primary btn-small btn-full" style="margin-top: 8px;">
+                                <span class="material-symbols-outlined">history</span>
+                                Regeln anwenden
+                            </button>
+                        </div>
                     </div>
                 </section>
                 
@@ -270,8 +288,9 @@
                 
                 <div class="input-group">
                     <label for="rule-target-label">Gmail-Label Name</label>
-                    <input type="text" id="rule-target-label" placeholder="z. B. Finanzen" required>
-                    <span class="input-tip">Wird in Gmail automatisch erstellt, wenn es nicht existiert.</span>
+                    <input type="text" id="rule-target-label" list="existing-labels" placeholder="z. B. Finanzen" required autocomplete="off">
+                    <datalist id="existing-labels"></datalist>
+                    <span class="input-tip">Wähle ein bestehendes Label aus oder tippe einen neuen Namen ein (wird automatisch erstellt).</span>
                 </div>
                 
                 <div class="checkbox-options">

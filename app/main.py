@@ -240,6 +240,39 @@ async def get_status(request: Request):
 
 # --- Custom Rules API ---
 
+@app.get("/api/labels")
+async def get_labels(request: Request):
+    email = get_current_user_email(request)
+    if not email:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+        
+    labels_set = set()
+    
+    # 1. Add labels from database rules
+    try:
+        rules = db.get_rules(email)
+        for rule in rules:
+            if rule.get("target_label"):
+                labels_set.add(rule["target_label"])
+    except Exception as e:
+        print(f"Error reading rules from DB: {e}")
+        
+    # 2. Add labels from Gmail API
+    user = db.get_user(email)
+    if user:
+        try:
+            service = gmail_worker.get_gmail_service(user)
+            if service:
+                results = service.users().labels().list(userId="me").execute()
+                gmail_labels = results.get("labels", [])
+                for label in gmail_labels:
+                    if label.get("type") == "user":
+                        labels_set.add(label["name"])
+        except Exception as e:
+            print(f"Error fetching Gmail labels: {e}")
+            
+    return sorted(list(labels_set))
+
 @app.get("/api/rules")
 async def get_rules(request: Request):
     email = get_current_user_email(request)
@@ -355,3 +388,30 @@ async def trigger_sync(request: Request, background_tasks: BackgroundTasks):
         
     background_tasks.add_task(run_sync_background, email)
     return {"status": "success", "message": "Sync triggered in background"}
+
+def run_historical_sync_background(user_email, since_date):
+    """Utility function to perform a manual run of the Gmail historical worker tasks."""
+    user = db.get_user(user_email)
+    if not user:
+        return
+        
+    service = gmail_worker.get_gmail_service(user)
+    if not service:
+        db.add_log(user_email, "Historischer Sync fehlgeschlagen: Google OAuth token konnte nicht geladen werden.", "error")
+        return
+        
+    db.add_log(user_email, f"Manueller historischer Sync gestartet (ab {since_date})...", "info")
+    gmail_worker.process_historical_messages(service, user, since_date)
+
+@app.post("/api/trigger-historical-sync")
+async def trigger_historical_sync(request: Request, payload: dict, background_tasks: BackgroundTasks):
+    email = get_current_user_email(request)
+    if not email:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+        
+    since_date = payload.get("since_date")
+    if not since_date:
+        raise HTTPException(status_code=400, detail="Fehlendes Datum für den historischen Sync.")
+        
+    background_tasks.add_task(run_historical_sync_background, email, since_date)
+    return {"status": "success", "message": "Historical sync triggered in background"}

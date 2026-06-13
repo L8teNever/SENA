@@ -56,6 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
         addRuleBtn.addEventListener('click', () => {
             ruleForm.reset();
             updateDialogFields();
+            loadLabels();
             ruleDialog.showModal();
         });
     }
@@ -192,6 +193,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Error loading rules:', error);
+        }
+    }
+
+    // Fetch and populate existing labels in datalist autocomplete
+    async function loadLabels() {
+        const existingLabelsDatalist = document.getElementById('existing-labels');
+        if (!existingLabelsDatalist) return;
+        try {
+            const response = await fetch('/api/labels');
+            if (!response.ok) throw new Error('Failed to fetch labels');
+            const labels = await response.json();
+            existingLabelsDatalist.innerHTML = labels.map(label => `<option value="${label}">`).join('');
+        } catch (error) {
+            console.error('Error loading labels:', error);
         }
     }
 
@@ -388,6 +403,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ruleDialog.close();
                 loadRules();
                 loadLogs();
+                loadLabels();
             } catch (error) {
                 console.error(error);
                 alert('Fehler beim Speichern der Regel.');
@@ -428,6 +444,61 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Historical Sync Event Handler
+    const historicalSyncBtn = document.getElementById('historical-sync-btn');
+    const historicalDateInput = document.getElementById('historical-date');
+
+    // Default historical date to 30 days ago
+    if (historicalDateInput) {
+        const defaultDate = new Date();
+        defaultDate.setDate(defaultDate.getDate() - 30);
+        historicalDateInput.value = defaultDate.toISOString().split('T')[0];
+    }
+
+    if (historicalSyncBtn && historicalDateInput) {
+        historicalSyncBtn.addEventListener('click', async () => {
+            const sinceDate = historicalDateInput.value;
+            if (!sinceDate) {
+                alert('Bitte wähle ein Startdatum aus.');
+                return;
+            }
+
+            historicalSyncBtn.disabled = true;
+            const originalText = historicalSyncBtn.innerHTML;
+            historicalSyncBtn.innerHTML = `
+                <span class="material-symbols-outlined button-icon-spin spin">sync</span>
+                Verarbeite...
+            `;
+
+            try {
+                const response = await fetch('/api/trigger-historical-sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ since_date: sinceDate })
+                });
+                
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.detail || 'Sync failed');
+                }
+
+                loadLogs();
+                // Wait 4 seconds, then reload everything (giving backend worker time to start/process)
+                setTimeout(async () => {
+                    await Promise.all([loadRules(), loadContacts(), loadLogs()]);
+                    historicalSyncBtn.innerHTML = originalText;
+                    historicalSyncBtn.disabled = false;
+                }, 4000);
+
+            } catch (error) {
+                console.error(error);
+                historicalSyncBtn.innerHTML = originalText;
+                historicalSyncBtn.disabled = false;
+                alert('Fehler beim Starten des historischen Syncs: ' + error.message);
+            }
+        });
+    }
+
     // Clear log console (doesn't wipe db, just clears interface or adds log indicator)
     if (clearLogsBtn) {
         clearLogsBtn.addEventListener('click', () => {
@@ -443,7 +514,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadSettings(),
                 loadRules(),
                 loadContacts(),
-                loadLogs()
+                loadLogs(),
+                loadLabels()
             ]);
             
             // Auto scroll log to bottom on first load
