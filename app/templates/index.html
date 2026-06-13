@@ -114,81 +114,134 @@
         </section>
 
         {% else %}
-        <!-- Dashboard (Logged In) -->
-        <div class="dashboard-grid">
+        <!-- Dashboard Navigation -->
+        <nav class="dashboard-tabs">
+            <button class="tab-btn active" data-tab="rules-panel">
+                <span class="material-symbols-outlined">rule_folder</span>
+                Filterregeln
+            </button>
+            <button class="tab-btn" data-tab="contacts-panel">
+                <span class="material-symbols-outlined">stars</span>
+                Super Wichtig
+            </button>
+            <button class="tab-btn" data-tab="logs-panel">
+                <span class="material-symbols-outlined">terminal</span>
+                Aktivitätsprotokoll
+            </button>
+        </nav>
+
+        <!-- Tab Panels -->
+        <div class="tab-content-wrapper">
             
-            <!-- LEFT COLUMN: Status, Settings, Contacts -->
-            <div class="dashboard-sidebar">
-                
-                <!-- Connection Status -->
-                <section class="glass-card status-card" style="display: flex; flex-direction: column; gap: 16px; align-items: stretch;">
-                    <div class="status-row" style="width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
-                        <div class="status-header">
-                            <span class="pulse-indicator"></span>
-                            <h3>Hintergrund-Dienst</h3>
-                            <span class="status-badge">Aktiv</span>
-                        </div>
-                        <div class="status-actions">
-                            <button id="sync-now-btn" class="btn btn-secondary">
-                                <span class="material-symbols-outlined button-icon-spin" id="sync-icon">sync</span>
-                                Jetzt synchronisieren
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="historical-sync-section" style="width: 100%; display: flex; flex-direction: column; gap: 8px;">
-                        <div class="divider-horizontal" style="height: 1px; background-color: rgba(255, 255, 255, 0.05); margin: 8px 0 12px 0;"></div>
-                        <h4 style="font-size: 14px; font-weight: 600; color: #ffffff; margin-bottom: 2px;">Historischer Sync</h4>
-                        <p class="section-desc-small" style="color: var(--text-muted); font-size: 12px; margin-bottom: 8px; line-height: 1.4;">Wende deine Filterregeln nachträglich auf ältere E-Mails an.</p>
-                        <div class="inline-form-vertical" style="display: flex; flex-direction: column; gap: 12px;">
-                            <div class="input-group-small" style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
-                                <label for="historical-date" style="font-size: 12px; color: var(--text-secondary);">Mails ab Datum:</label>
-                                <input type="date" id="historical-date" class="date-input" style="background-color: rgba(255, 255, 255, 0.03); border: 1.5px solid rgba(255, 255, 255, 0.08); border-radius: 12px; color: #ffffff; font-family: var(--font-main); padding: 8px 12px; font-size: 13px; outline: none; flex-grow: 1; min-width: 130px;">
+            <!-- PANEL 1: Rules & Settings -->
+            <div id="rules-panel" class="tab-panel active">
+                <div class="dashboard-grid">
+                    <!-- LEFT COLUMN: Status & Cleaner -->
+                    <div class="dashboard-sidebar">
+                        <!-- Connection Status -->
+                        <section class="glass-card status-card" style="display: flex; flex-direction: column; gap: 16px; align-items: stretch;">
+                            <div class="status-row" style="width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
+                                <div class="status-header">
+                                    <span class="pulse-indicator"></span>
+                                    <h3>Hintergrund-Dienst</h3>
+                                    <span class="status-badge">Aktiv</span>
+                                </div>
+                                <div class="status-actions">
+                                    <button id="sync-now-btn" class="btn btn-secondary">
+                                        <span class="material-symbols-outlined button-icon-spin" id="sync-icon">sync</span>
+                                        Jetzt synchronisieren
+                                    </button>
+                                </div>
                             </div>
-                            <button id="historical-sync-btn" class="btn btn-primary btn-small btn-full" style="margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 10px 16px; border-radius: 18px; font-size: 13px;">
-                                <span class="material-symbols-outlined">history</span>
-                                Regeln anwenden
-                            </button>
+                            
+                            <div class="historical-sync-section" style="width: 100%; display: flex; flex-direction: column; gap: 8px;">
+                                <div class="divider-horizontal" style="height: 1px; background-color: rgba(255, 255, 255, 0.05); margin: 8px 0 12px 0;"></div>
+                                <h4 style="font-size: 14px; font-weight: 600; color: #ffffff; margin-bottom: 2px;">Historischer Sync</h4>
+                                <p class="section-desc-small" style="color: var(--text-muted); font-size: 12px; margin-bottom: 8px; line-height: 1.4;">Wende deine Filterregeln nachträglich auf ältere E-Mails an.</p>
+                                <div class="inline-form-vertical" style="display: flex; flex-direction: column; gap: 12px;">
+                                    <div class="input-group-small" style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                        <label for="historical-date" style="font-size: 12px; color: var(--text-secondary);">Mails ab Datum:</label>
+                                        <input type="date" id="historical-date" class="date-input" style="background-color: rgba(255, 255, 255, 0.03); border: 1.5px solid rgba(255, 255, 255, 0.08); border-radius: 12px; color: #ffffff; font-family: var(--font-main); padding: 8px 12px; font-size: 13px; outline: none; flex-grow: 1; min-width: 130px;">
+                                    </div>
+                                    <button id="historical-sync-btn" class="btn btn-primary btn-small btn-full" style="margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 10px 16px; border-radius: 18px; font-size: 13px;">
+                                        <span class="material-symbols-outlined">history</span>
+                                        Regeln anwenden
+                                    </button>
+                                </div>
+                            </div>
+                        </section>
+                        
+                        <!-- Verification Clean-up settings -->
+                        <section class="glass-card v-cleaner-card">
+                            <div class="card-header">
+                                <span class="material-symbols-outlined header-icon accent-icon">security</span>
+                                <h3>Verifizierungs-Aufräumer</h3>
+                            </div>
+                            <p class="section-desc">
+                                Sucht nach Mails wie "Dein Verifizierungscode" oder "Einmal-Passwort" und archiviert diese automatisch nach **24 Stunden** in das Label <span class="badge">SENA/Verifizierungen</span>.
+                            </p>
+                            <div class="switch-row">
+                                <span>Automatische Archivierung aktivieren</span>
+                                <label class="switch-control">
+                                    <input type="checkbox" id="v-cleaner-toggle" checked>
+                                    <span class="switch-slider"></span>
+                                </label>
+                            </div>
+                        </section>
+                    </div>
+
+                    <!-- RIGHT COLUMN: Rules Manager -->
+                    <div class="dashboard-main" style="width: 100%;">
+                        <section class="glass-card rules-card">
+                            <div class="rules-header">
+                                <div class="card-header">
+                                    <span class="material-symbols-outlined header-icon accent-icon">rule</span>
+                                    <h3>Eigene Filterregeln</h3>
+                                </div>
+                                <button id="add-rule-btn" class="btn btn-primary">
+                                    <span class="material-symbols-outlined">add_circle</span>
+                                    Regel erstellen
+                                </button>
+                            </div>
+                            
+                            <div class="rules-grid" id="rules-grid">
+                                <!-- Populated by JS -->
+                                <div class="empty-rules-container">
+                                    <span class="material-symbols-outlined empty-icon">rule_folder</span>
+                                    <p>Noch keine Filterregeln angelegt. Erstelle eine neue Regel, um E-Mails zu sortieren.</p>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANEL 2: Super Wichtig Contacts (Spacious Layout) -->
+            <div id="contacts-panel" class="tab-panel" style="display: none;">
+                <section class="glass-card contacts-card-spacious">
+                    <div class="contacts-spacious-header">
+                        <div class="card-header">
+                            <span class="material-symbols-outlined header-icon accent-icon">stars</span>
+                            <div>
+                                <h3>Super Wichtig Kontakte</h3>
+                                <p class="section-desc-spacious" style="margin-top: 4px;">
+                                    Empfänger, an die du E-Mails sendest, werden hier automatisch eingetragen. E-Mails von diesen Kontakten erhalten das Label <span class="badge">Super Wichtig</span>.
+                                </p>
+                            </div>
                         </div>
+                        
+                        <form id="add-contact-form" class="spacious-contact-form">
+                            <div class="input-with-button-row">
+                                <input type="email" id="contact-email-input" placeholder="z. B. chef@firma.de" required>
+                                <button type="submit" class="btn btn-primary">
+                                    <span class="material-symbols-outlined">add</span>
+                                    Kontakt hinzufügen
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                </section>
-                
-                <!-- Verification Clean-up settings -->
-                <section class="glass-card v-cleaner-card">
-                    <div class="card-header">
-                        <span class="material-symbols-outlined header-icon accent-icon">security</span>
-                        <h3>Verifizierungs-Aufräumer</h3>
-                    </div>
-                    <p class="section-desc">
-                        Sucht nach Mails wie "Dein Verifizierungscode" oder "Einmal-Passwort" und archiviert diese automatisch nach **24 Stunden** in das Label <span class="badge">SENA/Verifizierungen</span>.
-                    </p>
-                    <div class="switch-row">
-                        <span>Automatische Archivierung aktivieren</span>
-                        <label class="switch-control">
-                            <input type="checkbox" id="v-cleaner-toggle" checked>
-                            <span class="switch-slider"></span>
-                        </label>
-                    </div>
-                </section>
-                
-                <!-- Super Wichtig Contacts -->
-                <section class="glass-card contacts-card">
-                    <div class="card-header">
-                        <span class="material-symbols-outlined header-icon accent-icon">star</span>
-                        <h3>Super Wichtig Kontakte</h3>
-                    </div>
-                    <p class="section-desc">
-                        Empfänger, an die du E-Mails sendest, werden hier automatisch eingetragen. Mails von diesen Kontakten erhalten das Label <span class="badge">Super Wichtig</span>.
-                    </p>
                     
-                    <form id="add-contact-form" class="inline-form">
-                        <input type="email" id="contact-email-input" placeholder="kontakt@beispiel.de" required>
-                        <button type="submit" class="btn btn-primary icon-only-btn" title="Hinzufügen">
-                            <span class="material-symbols-outlined">add</span>
-                        </button>
-                    </form>
-                    
-                    <div class="contacts-list-container">
+                    <div class="contacts-list-container-spacious">
                         <ul id="contacts-list" class="contacts-list">
                             <!-- Populated by JS -->
                             <li class="empty-list-item">Keine Kontakte geladen</li>
@@ -197,51 +250,34 @@
                 </section>
             </div>
 
-            <!-- RIGHT COLUMN: Rules Manager & Terminal logs -->
-            <div class="dashboard-main">
-                
-                <!-- Rules Manager -->
-                <section class="glass-card rules-card">
-                    <div class="rules-header">
-                        <div class="card-header">
-                            <span class="material-symbols-outlined header-icon accent-icon">rule</span>
-                            <h3>Eigene Filterregeln</h3>
-                        </div>
-                        <button id="add-rule-btn" class="btn btn-primary">
-                            <span class="material-symbols-outlined">add_circle</span>
-                            Regel erstellen
-                        </button>
-                    </div>
-                    
-                    <div class="rules-grid" id="rules-grid">
-                        <!-- Populated by JS -->
-                        <div class="empty-rules-container">
-                            <span class="material-symbols-outlined empty-icon">rule_folder</span>
-                            <p>Noch keine Filterregeln angelegt. Erstelle eine neue Regel, um E-Mails zu sortieren.</p>
-                        </div>
-                    </div>
-                </section>
-                
-                <!-- Logs Console -->
-                <section class="glass-card logs-card">
-                    <div class="logs-header">
+            <!-- PANEL 3: Activity Logs (Full Terminal View) -->
+            <div id="logs-panel" class="tab-panel" style="display: none;">
+                <section class="glass-card logs-card-spacious">
+                    <div class="logs-header-spacious">
                         <div class="card-header">
                             <span class="material-symbols-outlined header-icon">terminal</span>
-                            <h3>Aktivitäts-Log</h3>
+                            <div>
+                                <h3>System-Aktivitätsprotokoll</h3>
+                                <p class="section-desc-spacious" style="margin-top: 4px;">
+                                    Live-Ausgabe der E-Mail-Filterung und Hintergrund-Synchronisierung.
+                                </p>
+                            </div>
                         </div>
                         <div class="logs-actions">
-                            <button id="clear-logs-btn" class="icon-button-small" title="Konsole leeren">
-                                <span class="material-symbols-outlined">delete_sweep</span>
+                            <button id="clear-logs-btn" class="btn btn-secondary" title="Protokoll leeren">
+                                <span class="material-symbols-outlined button-icon">delete_sweep</span>
+                                Protokoll leeren
                             </button>
                         </div>
                     </div>
-                    <div class="terminal-container">
+                    <div class="terminal-container-spacious">
                         <div class="terminal-logs" id="terminal-logs">
                             <div class="log-line log-info">Lade Log-Verlauf...</div>
                         </div>
                     </div>
                 </section>
             </div>
+
         </div>
         {% endif %}
     </main>

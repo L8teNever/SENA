@@ -58,6 +58,29 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- Tab Switcher Logic ---
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabPanels = document.querySelectorAll('.tab-panel');
+
+    tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const targetTab = btn.dataset.tab;
+            
+            // Set active class on buttons
+            tabButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // Toggle panels display
+            tabPanels.forEach(panel => {
+                if (panel.id === targetTab) {
+                    panel.style.display = 'block';
+                } else {
+                    panel.style.display = 'none';
+                }
+            });
+        });
+    });
+
     // --- Modals Handlers ---
     if (addRuleBtn) {
         addRuleBtn.addEventListener('click', () => {
