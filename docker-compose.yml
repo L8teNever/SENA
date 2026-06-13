@@ -13,3 +13,5 @@ services:
       - .env
     environment:
       - DATABASE_URL=/app/data/sena.db
+      # Falls du eine feste Weiterleitungs-URI/Domain erzwingen willst (z. B. sena.l8tenever.com):
+      # - REDIRECT_URI=https://sena.l8tenever.com/oauth2callback

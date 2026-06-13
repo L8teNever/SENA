@@ -60,7 +60,7 @@
                 </div>
                 <div class="input-group">
                     <label for="redirect_uri">Redirect URI (Callback)</label>
-                    <input type="text" id="redirect_uri" name="redirect_uri" value="http://localhost:8000/oauth2callback" readonly class="readonly-input">
+                    <input type="text" id="redirect_uri" name="redirect_uri" value="{{ redirect_uri }}" readonly class="readonly-input">
                     <span class="input-tip">Diese URI muss exakt so in deiner Google Cloud Console eingetragen sein.</span>
                 </div>
                 <button type="submit" class="btn btn-primary btn-full">
@@ -316,7 +316,7 @@
                 </div>
                 <div class="input-group">
                     <label for="reconfig_redirect_uri">Redirect URI</label>
-                    <input type="text" id="reconfig_redirect_uri" name="redirect_uri" value="http://localhost:8000/oauth2callback" readonly class="readonly-input">
+                    <input type="text" id="reconfig_redirect_uri" name="redirect_uri" value="{{ redirect_uri }}" readonly class="readonly-input">
                 </div>
                 <div class="modal-footer">
                     <button type="button" id="cancel-credentials-btn" class="btn btn-secondary">Abbrechen</button>

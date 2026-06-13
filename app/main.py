@@ -46,6 +46,26 @@ def get_current_user_email(request: Request):
         return None
     return email
 
+# Helper to dynamically get the redirect URI supporting reverse proxies
+def get_redirect_uri(request: Request) -> str:
+    # Prioritize environment variable if explicitly configured
+    env_redirect = os.environ.get("REDIRECT_URI")
+    if env_redirect:
+        return env_redirect
+        
+    # Get host, prioritizing proxy headers
+    host = request.headers.get("x-forwarded-host") or request.headers.get("host", "localhost:8000")
+    
+    # Get scheme, prioritizing proxy headers
+    x_proto = request.headers.get("x-forwarded-proto")
+    if x_proto:
+        # Standard proxy chains can provide comma-separated protocols
+        proto = x_proto.split(",")[0].strip().lower()
+    else:
+        proto = request.url.scheme
+        
+    return f"{proto}://{host}/oauth2callback"
+
 # Pydantic schemas for API inputs
 class RuleCreate(BaseModel):
     name: str
@@ -70,13 +90,17 @@ async def index(request: Request):
     client_config = oauth.get_google_client_config()
     credentials_configured = client_config is not None
     
+    # Generate dynamic redirect URI to display/use
+    redirect_uri = get_redirect_uri(request)
+    
     return templates.TemplateResponse(
         request=request,
         name="index.html",
         context={
             "user_email": user_email,
             "credentials_configured": credentials_configured,
-            "google_client_id": os.environ.get("GOOGLE_CLIENT_ID") or db.get_setting("google_client_id") or ""
+            "google_client_id": os.environ.get("GOOGLE_CLIENT_ID") or db.get_setting("google_client_id") or "",
+            "redirect_uri": redirect_uri
         }
     )
 
@@ -84,12 +108,13 @@ async def index(request: Request):
 
 @app.post("/api/settings/setup")
 async def setup_credentials(
+    request: Request,
     client_id: str = Form(...),
     client_secret: str = Form(...),
     redirect_uri: Optional[str] = Form(None)
 ):
     if not redirect_uri:
-        redirect_uri = "http://localhost:8000/oauth2callback"
+        redirect_uri = get_redirect_uri(request)
         
     db.set_setting("google_client_id", client_id.strip())
     db.set_setting("google_client_secret", client_secret.strip())
@@ -127,11 +152,8 @@ async def toggle_cleanup(request: Request):
 
 @app.get("/oauth/login")
 async def oauth_login(request: Request):
-    # Determine callback URI
-    # Build dynamically based on request host to support different environments (localhost, custom domains)
-    host = request.headers.get("host", "localhost:8000")
-    proto = "https" if request.headers.get("x-forwarded-proto") == "https" else "http"
-    redirect_uri = f"{proto}://{host}/oauth2callback"
+    # Determine callback URI dynamically
+    redirect_uri = get_redirect_uri(request)
     
     # Store dynamic redirect URI in DB as override
     db.set_setting("google_redirect_uri", redirect_uri)
@@ -143,7 +165,8 @@ async def oauth_login(request: Request):
             name="index.html",
             context={
                 "error_message": "Google-API-Client-Zugangsdaten sind nicht eingerichtet.",
-                "credentials_configured": False
+                "credentials_configured": False,
+                "redirect_uri": redirect_uri
             }
         )
     
@@ -158,9 +181,7 @@ async def oauth_callback(request: Request, response: Response):
         raise HTTPException(status_code=400, detail="Missing OAuth state cookie.")
 
     # Reconstruct exact redirect URI used during authorization request
-    host = request.headers.get("host", "localhost:8000")
-    proto = "https" if request.headers.get("x-forwarded-proto") == "https" else "http"
-    redirect_uri = f"{proto}://{host}/oauth2callback"
+    redirect_uri = get_redirect_uri(request)
 
     # Full callback URL parsed
     full_url = str(request.url)
@@ -188,7 +209,8 @@ async def oauth_callback(request: Request, response: Response):
             name="index.html",
             context={
                 "error_message": f"OAuth-Fehler: {str(e)}",
-                "credentials_configured": True
+                "credentials_configured": True,
+                "redirect_uri": redirect_uri
             }
         )
 

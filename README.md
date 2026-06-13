@@ -39,9 +39,25 @@ Um die Gmail-API nutzen zu können, musst du Client-Zugangsdaten in der Google C
    - Klicke auf **Anmeldedaten erstellen** -> **OAuth-Client-ID**.
    - Anwendungstyp: **Webanwendung**.
    - Name: `SENA Web App`.
-   - Autorisierte JavaScript-Herkunfte: `http://localhost:8000`.
-   - Autorisierte Weiterleitungs-URIs: `http://localhost:8000/oauth2callback`.
+   - **Lokale Entwicklung:**
+     - Autorisierte JavaScript-Herkunfte: `http://localhost:8000`.
+     - Autorisierte Weiterleitungs-URIs: `http://localhost:8000/oauth2callback`.
+   - **Öffentliche Domain (z.B. `sena.l8tenever.com`):**
+     - Autorisierte JavaScript-Herkunfte: `https://sena.l8tenever.com`.
+     - Autorisierte Weiterleitungs-URIs: `https://sena.l8tenever.com/oauth2callback`.
    - Klicke auf **Erstellen** und kopiere die **Client-ID** und das **Client-Secret**.
+
+---
+
+## 🌐 Nutzung mit öffentlichen Domains & Reverse Proxies
+
+SENA unterstützt dynamische Redirect-URIs für den Google-Login. Wenn du SENA hinter einem Reverse Proxy (z. B. **Nginx**, **Caddy**, **Traefik**, **Cloudflare**) betreibst:
+
+1. Stellt sicher, dass euer Proxy die Standard-Header weiterleitet:
+   - `Host` bzw. `X-Forwarded-Host` (wird automatisch als Domain genutzt)
+   - `X-Forwarded-Proto` (stellt sicher, dass HTTPS-Redirects korrekt als `https://...` generiert werden)
+2. Das Setup-Interface und der Google-Login erkennen die Domain und das Protokoll (HTTP/HTTPS) automatisch und passen die benötigten Callback-URIs zur Google-Authentifizierung dynamisch an.
+3. Alternativ kann in der `.env`-Datei die Variable `REDIRECT_URI` fest definiert werden (z. B. `REDIRECT_URI=https://sena.l8tenever.com/oauth2callback`), um die automatische Erkennung zu überschreiben.
 
 ---
 
