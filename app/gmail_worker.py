@@ -176,7 +176,7 @@ def process_inbox_messages(service, user_dict):
                     cond_sender = rule["condition_sender"].lower().strip() if rule["condition_sender"] else ""
                     if cond_sender:
                         senders = [s.strip() for s in cond_sender.split(",") if s.strip()]
-                        if any(s in from_email for s in senders):
+                        if any(match_email(from_email, s) for s in senders):
                             is_match = True
                 
                 elif rule["rule_type"] == "to":
@@ -184,7 +184,7 @@ def process_inbox_messages(service, user_dict):
                     cond_recipient = rule["condition_recipient"].lower().strip() if rule["condition_recipient"] else ""
                     if cond_recipient:
                         recipients = [r.strip() for r in cond_recipient.split(",") if r.strip()]
-                        if any(r in to_email for r in recipients):
+                        if any(match_email(to_email, r) for r in recipients):
                             is_match = True
                 
                 elif rule["rule_type"] == "from_subject":
@@ -193,7 +193,7 @@ def process_inbox_messages(service, user_dict):
                     cond_subject = rule["condition_subject"].lower().strip() if rule["condition_subject"] else ""
                     if cond_sender and cond_subject:
                         senders = [s.strip() for s in cond_sender.split(",") if s.strip()]
-                        if any(s in from_email for s in senders) and cond_subject in subject_lower:
+                        if any(match_email(from_email, s) for s in senders) and cond_subject in subject_lower:
                             is_match = True
                 
                 elif rule["rule_type"] == "subject_keywords":
@@ -350,14 +350,14 @@ def process_historical_messages(service, user_dict, since_date):
                     cond_sender = rule["condition_sender"].lower().strip() if rule["condition_sender"] else ""
                     if cond_sender:
                         senders = [s.strip() for s in cond_sender.split(",") if s.strip()]
-                        if any(s in from_email for s in senders):
+                        if any(match_email(from_email, s) for s in senders):
                             is_match = True
                 
                 elif rule["rule_type"] == "to":
                     cond_recipient = rule["condition_recipient"].lower().strip() if rule["condition_recipient"] else ""
                     if cond_recipient:
                         recipients = [r.strip() for r in cond_recipient.split(",") if r.strip()]
-                        if any(r in to_email for r in recipients):
+                        if any(match_email(to_email, r) for r in recipients):
                             is_match = True
                 
                 elif rule["rule_type"] == "from_subject":
@@ -365,7 +365,7 @@ def process_historical_messages(service, user_dict, since_date):
                     cond_subject = rule["condition_subject"].lower().strip() if rule["condition_subject"] else ""
                     if cond_sender and cond_subject:
                         senders = [s.strip() for s in cond_sender.split(",") if s.strip()]
-                        if any(s in from_email for s in senders) and cond_subject in subject_lower:
+                        if any(match_email(from_email, s) for s in senders) and cond_subject in subject_lower:
                             is_match = True
                 
                 elif rule["rule_type"] == "subject_keywords":

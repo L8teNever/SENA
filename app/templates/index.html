@@ -310,13 +310,15 @@
                 
                 <!-- Condition inputs (toggled dynamically) -->
                 <div class="input-group condition-field" id="field-sender">
-                    <label for="rule-sender">Absender E-Mail</label>
-                    <input type="text" id="rule-sender" placeholder="z.B. newsletter@firma.de">
+                    <label for="rule-sender">Absender E-Mail / Domain</label>
+                    <input type="text" id="rule-sender" placeholder="z. B. newsletter@firma.de oder @firma.de">
+                    <span class="input-tip">Nutze @firma.de (mit @), um alle Mails dieser Domain zu filtern. Mehrere Einträge mit Komma trennen.</span>
                 </div>
                 
                 <div class="input-group condition-field" id="field-recipient" style="display:none;">
-                    <label for="rule-recipient">Empfänger E-Mail (z. B. Alias)</label>
-                    <input type="text" id="rule-recipient" placeholder="z.B. meine-adresse+alias@gmail.com">
+                    <label for="rule-recipient">Empfänger E-Mail / Domain (z. B. Alias)</label>
+                    <input type="text" id="rule-recipient" placeholder="z. B. meine-adresse@gmail.com oder @domnina.de">
+                    <span class="input-tip">Nutze @domnina.de (mit @), um alle Mails an diese Domain zu filtern.</span>
                 </div>
                 
                 <div class="input-group condition-field" id="field-subject" style="display:none;">
