@@ -158,7 +158,7 @@ async def oauth_login(request: Request):
     # Store dynamic redirect URI in DB as override
     db.set_setting("google_redirect_uri", redirect_uri)
     
-    auth_url, state = oauth.get_auth_url(redirect_uri)
+    auth_url, state, code_verifier = oauth.get_auth_url(redirect_uri)
     if not auth_url:
         return templates.TemplateResponse(
             request=request,
@@ -172,11 +172,14 @@ async def oauth_login(request: Request):
     
     response = RedirectResponse(auth_url)
     response.set_cookie("oauth_state", state, max_age=600, httponly=True)
+    if code_verifier:
+        response.set_cookie("oauth_code_verifier", code_verifier, max_age=600, httponly=True)
     return response
 
 @app.get("/oauth2callback")
 async def oauth_callback(request: Request, response: Response):
     state = request.cookies.get("oauth_state")
+    code_verifier = request.cookies.get("oauth_code_verifier")
     if not state:
         raise HTTPException(status_code=400, detail="Missing OAuth state cookie.")
 
@@ -193,7 +196,8 @@ async def oauth_callback(request: Request, response: Response):
         email = oauth.handle_oauth_callback(
             authorization_response=full_url,
             state=state,
-            redirect_uri=redirect_uri
+            redirect_uri=redirect_uri,
+            code_verifier=code_verifier
         )
         
         db.add_log(email, "Google-Konto erfolgreich verbunden und autorisiert.", "success")
@@ -202,6 +206,7 @@ async def oauth_callback(request: Request, response: Response):
         response = RedirectResponse("/", status_code=303)
         response.set_cookie("sena_user_email", email, max_age=30*24*3600, httponly=True) # 30 days
         response.delete_cookie("oauth_state")
+        response.delete_cookie("oauth_code_verifier")
         return response
     except Exception as e:
         return templates.TemplateResponse(

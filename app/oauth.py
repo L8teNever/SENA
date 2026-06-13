@@ -39,7 +39,7 @@ def get_auth_url(redirect_uri):
     """Generates the authorization URL to redirect the user to Google login."""
     client_config = get_google_client_config(redirect_uri)
     if not client_config:
-        return None, "Google Client ID and Client Secret are not configured."
+        return None, "Google Client ID and Client Secret are not configured.", None
 
     flow = Flow.from_client_config(
         client_config,
@@ -53,9 +53,9 @@ def get_auth_url(redirect_uri):
         prompt="consent", # Force consent screen to guarantee refresh token is returned
         include_granted_scopes="true"
     )
-    return authorization_url, state
+    return authorization_url, state, flow.code_verifier
 
-def handle_oauth_callback(authorization_response, state, redirect_uri):
+def handle_oauth_callback(authorization_response, state, redirect_uri, code_verifier=None):
     """Handles callback response from Google, exchanges authorization code for tokens,
     retrieves user email, and stores them in the database."""
     client_config = get_google_client_config(redirect_uri)
@@ -66,7 +66,8 @@ def handle_oauth_callback(authorization_response, state, redirect_uri):
         client_config,
         scopes=SCOPES,
         redirect_uri=redirect_uri,
-        state=state
+        state=state,
+        code_verifier=code_verifier
     )
     
     flow.fetch_token(authorization_response=authorization_response)
