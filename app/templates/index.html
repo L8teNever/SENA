@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
-    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/style.css?v=1.2">
 </head>
 <body class="dark-mode">
     <div class="background-glow"></div>
@@ -118,8 +118,8 @@
             <div class="dashboard-sidebar">
                 
                 <!-- Connection Status -->
-                <section class="glass-card status-card">
-                    <div class="status-row" style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
+                <section class="glass-card status-card" style="display: flex; flex-direction: column; gap: 16px; align-items: stretch;">
+                    <div class="status-row" style="width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
                         <div class="status-header">
                             <span class="pulse-indicator"></span>
                             <h3>Hintergrund-Dienst</h3>
@@ -133,16 +133,16 @@
                         </div>
                     </div>
                     
-                    <div class="historical-sync-section" style="width: 100%;">
-                        <div class="divider-horizontal"></div>
-                        <h4>Historischer Sync</h4>
-                        <p class="section-desc-small">Wende deine Filterregeln nachträglich auf ältere E-Mails an.</p>
-                        <div class="inline-form-vertical">
-                            <div class="input-group-small">
-                                <label for="historical-date">Mails ab Datum:</label>
-                                <input type="date" id="historical-date" class="date-input">
+                    <div class="historical-sync-section" style="width: 100%; display: flex; flex-direction: column; gap: 8px;">
+                        <div class="divider-horizontal" style="height: 1px; background-color: rgba(255, 255, 255, 0.05); margin: 8px 0 12px 0;"></div>
+                        <h4 style="font-size: 14px; font-weight: 600; color: #ffffff; margin-bottom: 2px;">Historischer Sync</h4>
+                        <p class="section-desc-small" style="color: var(--text-muted); font-size: 12px; margin-bottom: 8px; line-height: 1.4;">Wende deine Filterregeln nachträglich auf ältere E-Mails an.</p>
+                        <div class="inline-form-vertical" style="display: flex; flex-direction: column; gap: 12px;">
+                            <div class="input-group-small" style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                <label for="historical-date" style="font-size: 12px; color: var(--text-secondary);">Mails ab Datum:</label>
+                                <input type="date" id="historical-date" class="date-input" style="background-color: rgba(255, 255, 255, 0.03); border: 1.5px solid rgba(255, 255, 255, 0.08); border-radius: 12px; color: #ffffff; font-family: var(--font-main); padding: 8px 12px; font-size: 13px; outline: none; flex-grow: 1; min-width: 130px;">
                             </div>
-                            <button id="historical-sync-btn" class="btn btn-primary btn-small btn-full" style="margin-top: 8px;">
+                            <button id="historical-sync-btn" class="btn btn-primary btn-small btn-full" style="margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 10px 16px; border-radius: 18px; font-size: 13px;">
                                 <span class="material-symbols-outlined">history</span>
                                 Regeln anwenden
                             </button>
