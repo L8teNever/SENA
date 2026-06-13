@@ -960,3 +960,254 @@ body {
     border-radius: 18px;
     font-size: 13px;
 }
+
+/* Rule Card Redesign (Visual Flowchart) */
+.rule-item-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background-color: var(--surface-variant);
+    border: 1.5px solid rgba(255, 255, 255, 0.04);
+    border-radius: 24px;
+    padding: 20px 24px;
+    transition: var(--transition-bounce);
+}
+
+.rule-item-card:hover {
+    border-color: rgba(148, 181, 255, 0.15);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+    transform: translateY(-2px);
+}
+
+.rule-card-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    padding-bottom: 12px;
+}
+
+.rule-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #ffffff;
+    letter-spacing: 0.2px;
+}
+
+.rule-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.rule-visual-flow {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.flow-node {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex-grow: 1;
+    min-width: 220px;
+}
+
+.flow-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding-left: 4px;
+}
+
+.flow-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background-color: rgba(0, 0, 0, 0.15);
+    border: 1.5px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 12px 16px;
+    transition: var(--transition-smooth);
+}
+
+.flow-box:hover {
+    border-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(0, 0, 0, 0.25);
+}
+
+.accent-box {
+    border-color: rgba(148, 181, 255, 0.15);
+    background: linear-gradient(135deg, rgba(148, 181, 255, 0.05) 0%, rgba(22, 25, 33, 0.3) 100%);
+}
+
+.accent-box .flow-box-icon {
+    color: var(--primary);
+}
+
+.flow-box-icon {
+    font-size: 20px;
+    color: var(--text-secondary);
+    background-color: rgba(255, 255, 255, 0.03);
+    padding: 8px;
+    border-radius: 10px;
+}
+
+.flow-box-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.flow-box-title {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.flow-box-value {
+    font-size: 13.5px;
+    color: var(--text-primary);
+    word-break: break-all;
+}
+
+.flow-box-value strong {
+    color: var(--primary);
+    font-weight: 500;
+}
+
+.flow-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    opacity: 0.5;
+}
+
+.flow-arrow span {
+    font-size: 24px;
+}
+
+.flow-actions-extra {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+}
+
+.action-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    color: var(--text-secondary);
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 4px 10px;
+    border-radius: 12px;
+}
+
+.action-badge span {
+    font-size: 14px;
+    color: var(--primary);
+}
+
+@media (max-width: 768px) {
+    .rule-visual-flow {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .flow-arrow {
+        transform: rotate(90deg);
+        margin: 4px 0;
+    }
+}
+
+/* Visual Type Selector Grid */
+.type-selector-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-top: 6px;
+    width: 100%;
+}
+
+.type-option-card {
+    cursor: pointer;
+    position: relative;
+    display: block;
+    background-color: rgba(255, 255, 255, 0.02);
+    border: 1.5px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    padding: 12px 14px;
+    transition: var(--transition-smooth);
+}
+
+.type-option-card input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.type-option-card:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+    background-color: rgba(255, 255, 255, 0.04);
+}
+
+.type-option-card:has(input:checked) {
+    border-color: var(--primary);
+    background-color: rgba(148, 181, 255, 0.06);
+    box-shadow: 0 0 0 3px rgba(148, 181, 255, 0.15);
+}
+
+.option-card-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.option-icon {
+    font-size: 20px;
+    color: var(--text-secondary);
+    background-color: rgba(255, 255, 255, 0.03);
+    padding: 8px;
+    border-radius: 10px;
+    transition: var(--transition-smooth);
+}
+
+.type-option-card:has(input:checked) .option-icon {
+    color: var(--primary);
+    background-color: rgba(148, 181, 255, 0.12);
+}
+
+.option-card-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.option-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.option-desc {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+@media (max-width: 500px) {
+    .type-selector-grid {
+        grid-template-columns: 1fr;
+    }
+}

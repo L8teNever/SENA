@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const clearLogsBtn = document.getElementById('clear-logs-btn');
 
     // Inputs & Filters
-    const ruleTypeSelect = document.getElementById('rule-type');
+    const ruleTypeRadios = document.querySelectorAll('input[name="rule-type"]');
     const vCleanerToggle = document.getElementById('v-cleaner-toggle');
 
     // Lists and Containers
@@ -51,6 +51,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    const headerSettingsBtn = document.getElementById('header-settings-btn');
+    if (headerSettingsBtn) {
+        headerSettingsBtn.addEventListener('click', () => {
+            credentialsDialog.showModal();
+        });
+    }
+
     // --- Modals Handlers ---
     if (addRuleBtn) {
         addRuleBtn.addEventListener('click', () => {
@@ -68,12 +75,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (cancelCredentialsBtn) cancelCredentialsBtn.addEventListener('click', () => credentialsDialog.close());
 
     // --- Dynamic Form Input Display ---
-    if (ruleTypeSelect) {
-        ruleTypeSelect.addEventListener('change', updateDialogFields);
+    if (ruleTypeRadios && ruleTypeRadios.length > 0) {
+        ruleTypeRadios.forEach(radio => {
+            radio.addEventListener('change', updateDialogFields);
+        });
     }
 
     function updateDialogFields() {
-        const selectedType = ruleTypeSelect.value;
+        const checkedRadio = document.querySelector('input[name="rule-type"]:checked');
+        const selectedType = checkedRadio ? checkedRadio.value : 'from';
         
         // Hide all conditional groups first
         document.getElementById('field-sender').style.display = 'none';
@@ -127,15 +137,20 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             rulesGrid.innerHTML = rules.map(rule => {
-                let conditionText = '';
+                let conditionValue = '';
+                let typeIcon = '';
                 if (rule.rule_type === 'from') {
-                    conditionText = `Von Absender: <strong>${rule.condition_sender}</strong>`;
+                    conditionValue = `Von: <strong>${rule.condition_sender}</strong>`;
+                    typeIcon = 'alternate_email';
                 } else if (rule.rule_type === 'to') {
-                    conditionText = `An Adresse: <strong>${rule.condition_recipient}</strong>`;
+                    conditionValue = `An: <strong>${rule.condition_recipient}</strong>`;
+                    typeIcon = 'mail';
                 } else if (rule.rule_type === 'from_subject') {
-                    conditionText = `Von: <strong>${rule.condition_sender}</strong> & Betreff: <strong>${rule.condition_subject}</strong>`;
+                    conditionValue = `Von: <strong>${rule.condition_sender}</strong> + Betreff: <strong>${rule.condition_subject}</strong>`;
+                    typeIcon = 'contact_mail';
                 } else if (rule.rule_type === 'subject_keywords') {
-                    conditionText = `Betreff enthält: <strong>${rule.condition_subject}</strong>`;
+                    conditionValue = `Betreff enthält: <strong>${rule.condition_subject}</strong>`;
+                    typeIcon = 'key';
                 }
 
                 const typeLabels = {
@@ -147,27 +162,57 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 return `
                     <div class="rule-item-card fade-in" data-id="${rule.id}">
-                        <div class="rule-details">
-                            <div class="rule-title-row">
-                                <span class="rule-title">${rule.name}</span>
-                                <span class="rule-type-badge">${typeLabels[rule.rule_type]}</span>
-                            </div>
-                            <div class="rule-condition">${conditionText}</div>
-                            <div class="rule-meta-row">
-                                <span class="badge">→ ${rule.target_label}</span>
-                                ${rule.remove_from_inbox ? '<span class="badge">Archivieren</span>' : ''}
-                                ${rule.remove_from_important ? '<span class="badge">Aus Wichtig</span>' : ''}
+                        <div class="rule-card-header-row">
+                            <span class="rule-title">${rule.name}</span>
+                            <div class="rule-card-actions">
+                                <label class="switch-control">
+                                    <input type="checkbox" class="toggle-rule-active" data-id="${rule.id}" ${rule.active ? 'checked' : ''}>
+                                    <span class="switch-slider"></span>
+                                </label>
+                                <button class="icon-button-small delete-rule-btn" data-id="${rule.id}" title="Regel löschen">
+                                    <span class="material-symbols-outlined">delete</span>
+                                </button>
                             </div>
                         </div>
-                        <div class="rule-actions">
-                            <label class="switch-control">
-                                <input type="checkbox" class="toggle-rule-active" data-id="${rule.id}" ${rule.active ? 'checked' : ''}>
-                                <span class="switch-slider"></span>
-                            </label>
-                            <button class="icon-button-small delete-rule-btn" data-id="${rule.id}" title="Regel löschen">
-                                <span class="material-symbols-outlined">delete</span>
-                            </button>
+                        
+                        <div class="rule-visual-flow">
+                            <!-- IF (Condition) -->
+                            <div class="flow-node flow-if">
+                                <span class="flow-label">WENN</span>
+                                <div class="flow-box">
+                                    <span class="material-symbols-outlined flow-box-icon">${typeIcon}</span>
+                                    <div class="flow-box-details">
+                                        <span class="flow-box-title">${typeLabels[rule.rule_type]}</span>
+                                        <span class="flow-box-value">${conditionValue}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- ARROW -->
+                            <div class="flow-arrow">
+                                <span class="material-symbols-outlined">trending_flat</span>
+                            </div>
+                            
+                            <!-- THEN (Action) -->
+                            <div class="flow-node flow-then">
+                                <span class="flow-label">DANN</span>
+                                <div class="flow-box accent-box">
+                                    <span class="material-symbols-outlined flow-box-icon">label</span>
+                                    <div class="flow-box-details">
+                                        <span class="flow-box-title">Label vergeben</span>
+                                        <span class="flow-box-value font-code">${rule.target_label}</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
+                        <!-- Extra Actions -->
+                        ${(rule.remove_from_inbox || rule.remove_from_important) ? `
+                        <div class="flow-actions-extra">
+                            ${rule.remove_from_inbox ? '<span class="action-badge"><span class="material-symbols-outlined">archive</span> Archivieren</span>' : ''}
+                            ${rule.remove_from_important ? '<span class="action-badge"><span class="material-symbols-outlined">label_off</span> Aus Wichtig</span>' : ''}
+                        </div>
+                        ` : ''}
                     </div>
                 `;
             }).join('');
@@ -382,7 +427,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const payload = {
                 name: document.getElementById('rule-name').value.trim(),
-                rule_type: ruleTypeSelect.value,
+                rule_type: document.querySelector('input[name="rule-type"]:checked').value,
                 condition_sender: document.getElementById('rule-sender').value.trim() || null,
                 condition_recipient: document.getElementById('rule-recipient').value.trim() || null,
                 condition_subject: document.getElementById('rule-subject').value.trim() || null,

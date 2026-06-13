@@ -27,6 +27,9 @@
                 <div class="profile-chip">
                     <span class="material-symbols-outlined">account_circle</span>
                     <span class="profile-email">{{ user_email }}</span>
+                    <button type="button" id="header-settings-btn" class="icon-button-small" title="Google API Einstellungen">
+                        <span class="material-symbols-outlined">settings</span>
+                    </button>
                     <form action="/api/logout" method="post" class="logout-form">
                         <button type="submit" class="icon-button-small" title="Abmelden">
                             <span class="material-symbols-outlined">logout</span>
@@ -260,13 +263,49 @@
                 </div>
                 
                 <div class="input-group">
-                    <label for="rule-type">Filtertyp</label>
-                    <select id="rule-type" required>
-                        <option value="from">Absender (Von Email)</option>
-                        <option value="to">Empfänger (An Email)</option>
-                        <option value="from_subject">Absender und Betreff</option>
-                        <option value="subject_keywords">Betreff enthält Stichworte</option>
-                    </select>
+                    <label style="margin-bottom: 12px;">Filtertyp</label>
+                    <div class="type-selector-grid">
+                        <label class="type-option-card">
+                            <input type="radio" name="rule-type" value="from" checked required>
+                            <div class="option-card-content">
+                                <span class="material-symbols-outlined option-icon">alternate_email</span>
+                                <div class="option-card-text">
+                                    <span class="option-title">Absender</span>
+                                    <span class="option-desc">Von E-Mail-Adresse</span>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="type-option-card">
+                            <input type="radio" name="rule-type" value="to">
+                            <div class="option-card-content">
+                                <span class="material-symbols-outlined option-icon">mail</span>
+                                <div class="option-card-text">
+                                    <span class="option-title">Empfänger</span>
+                                    <span class="option-desc">An E-Mail-Adresse</span>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="type-option-card">
+                            <input type="radio" name="rule-type" value="from_subject">
+                            <div class="option-card-content">
+                                <span class="material-symbols-outlined option-icon">contact_mail</span>
+                                <div class="option-card-text">
+                                    <span class="option-title">Absender & Betreff</span>
+                                    <span class="option-desc">Adresse + Stichwort</span>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="type-option-card">
+                            <input type="radio" name="rule-type" value="subject_keywords">
+                            <div class="option-card-content">
+                                <span class="material-symbols-outlined option-icon">key</span>
+                                <div class="option-card-text">
+                                    <span class="option-title">Keywords</span>
+                                    <span class="option-desc">Betreff-Stichwörter</span>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
                 </div>
                 
                 <!-- Condition inputs (toggled dynamically) -->

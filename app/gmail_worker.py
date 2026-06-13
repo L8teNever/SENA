@@ -64,6 +64,16 @@ def extract_email_address(header_value):
     name, addr = email.utils.parseaddr(header_value)
     return addr.lower().strip()
 
+def match_email(email_addr: str, pattern: str) -> bool:
+    """Checks if an email matches a pattern. Matches full email, substring, or '@domain.de' (endswith)."""
+    email_addr = email_addr.lower().strip()
+    pattern = pattern.lower().strip()
+    if not pattern:
+        return False
+    if pattern.startswith("@"):
+        return email_addr.endswith(pattern)
+    return pattern in email_addr
+
 def process_sent_messages(service, user_email):
     """Scans recently sent emails to auto-detect 'Super Wichtig' contacts."""
     try:
@@ -97,9 +107,10 @@ def process_sent_messages(service, user_email):
                         existing = db.get_super_wichtig_contacts(user_email)
                         existing_emails = {c["contact_email"] for c in existing}
                         if email_addr not in existing_emails:
-                            db.add_super_wichtig_contact(user_email, email_addr, source="auto")
-                            db.add_log(user_email, f"Kontakt automatisch als 'Super Wichtig' markiert (gesendete Mail): {email_addr}", "info")
-                            new_contacts_count += 1
+                            if not db.is_deleted_super_wichtig_contact(user_email, email_addr):
+                                db.add_super_wichtig_contact(user_email, email_addr, source="auto")
+                                db.add_log(user_email, f"Kontakt automatisch als 'Super Wichtig' markiert (gesendete Mail): {email_addr}", "info")
+                                new_contacts_count += 1
                             
     except Exception as e:
         print(f"Error processing sent messages for {user_email}: {e}")

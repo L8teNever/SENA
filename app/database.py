@@ -69,6 +69,17 @@ def init_db():
     )
     """)
 
+    # Deleted Super Wichtig contacts table (keeps track of contacts user explicitly removed)
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS deleted_super_wichtig_contacts (
+        user_email TEXT NOT NULL,
+        contact_email TEXT NOT NULL,
+        deleted_at TEXT NOT NULL,
+        PRIMARY KEY (user_email, contact_email),
+        FOREIGN KEY (user_email) REFERENCES users (email) ON DELETE CASCADE
+    )
+    """)
+
     # Processing logs table
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS processing_logs (
@@ -174,11 +185,14 @@ def toggle_rule(rule_id, user_email, active):
 def add_super_wichtig_contact(user_email, contact_email, source="auto"):
     conn = get_db_connection()
     now_str = datetime.now().isoformat()
+    email_clean = contact_email.lower().strip()
     try:
+        # If manually added or auto-added, remove from the deleted list in case they re-add it
+        conn.execute("DELETE FROM deleted_super_wichtig_contacts WHERE user_email = ? AND contact_email = ?", (user_email, email_clean))
         conn.execute("""
         INSERT OR IGNORE INTO super_wichtig_contacts (user_email, contact_email, source, added_at)
         VALUES (?, ?, ?, ?)
-        """, (user_email, contact_email.lower().strip(), source, now_str))
+        """, (user_email, email_clean, source, now_str))
         conn.commit()
     except sqlite3.Error:
         pass
@@ -193,9 +207,24 @@ def get_super_wichtig_contacts(user_email):
 
 def delete_super_wichtig_contact(user_email, contact_email):
     conn = get_db_connection()
-    conn.execute("DELETE FROM super_wichtig_contacts WHERE user_email = ? AND contact_email = ?", (user_email, contact_email.lower().strip()))
+    email_clean = contact_email.lower().strip()
+    now_str = datetime.now().isoformat()
+    # Delete from active contacts
+    conn.execute("DELETE FROM super_wichtig_contacts WHERE user_email = ? AND contact_email = ?", (user_email, email_clean))
+    # Insert or ignore into deleted contacts so it's not auto-added again
+    conn.execute("""
+    INSERT OR IGNORE INTO deleted_super_wichtig_contacts (user_email, contact_email, deleted_at)
+    VALUES (?, ?, ?)
+    """, (user_email, email_clean, now_str))
     conn.commit()
     conn.close()
+
+def is_deleted_super_wichtig_contact(user_email, contact_email):
+    conn = get_db_connection()
+    email_clean = contact_email.lower().strip()
+    row = conn.execute("SELECT 1 FROM deleted_super_wichtig_contacts WHERE user_email = ? AND contact_email = ?", (user_email, email_clean)).fetchone()
+    conn.close()
+    return row is not None
 
 # --- Logs Helpers ---
 
