@@ -8,6 +8,7 @@ import app.database as db
 
 SCOPES = [
     "openid",
+    "https://www.googleapis.com/auth/userinfo.profile",
     "https://www.googleapis.com/auth/userinfo.email",
     "https://www.googleapis.com/auth/gmail.modify"
 ]

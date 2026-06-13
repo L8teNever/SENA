@@ -191,6 +191,7 @@ async def oauth_callback(request: Request, response: Response):
     # google-auth-oauthlib expects https in redirect URI unless it's localhost/127.0.0.1
     # We can override safety check for local development/testing in docker
     os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+    os.environ["OAUTHLIB_RELAX_TOKEN_SCOPE"] = "1"
     
     try:
         email = oauth.handle_oauth_callback(
